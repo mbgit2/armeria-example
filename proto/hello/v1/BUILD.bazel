@@ -1,0 +1,36 @@
+load("@build_stack_rules_proto//rules:proto_compile.bzl", "proto_compile")
+load("@build_stack_rules_proto//rules/java:proto_java_library.bzl", "proto_java_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "hello_proto",
+    srcs = ["hello.proto"],
+    strip_import_prefix = "/proto",
+    visibility = ["//visibility:public"],
+)
+
+proto_compile(
+    name = "hello_java_compile",
+    outs = {
+        "@build_stack_rules_proto//plugin/builtin:java": "proto/hello/v1/hello.srcjar",
+        "@build_stack_rules_proto//plugin/grpc/grpc-java:protoc-gen-grpc-java": "proto/hello/v1/hello_grpc.srcjar",
+    },
+    outputs = [
+        "hello.srcjar",
+        "hello_grpc.srcjar",
+    ],
+    plugins = [
+        "@build_stack_rules_proto//plugin/builtin:java",
+        "@build_stack_rules_proto//plugin/grpc/grpc-java:protoc-gen-grpc-java",
+    ],
+    proto = ":hello_proto",
+)
+
+proto_java_library(
+    name = "hello_java_library",
+    srcs = ["hello.srcjar"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)

@@ -1,0 +1,65 @@
+load("@build_stack_rules_proto//rules:proto_compile.bzl", "proto_compile")
+load("@build_stack_rules_proto//rules/java:grpc_java_library.bzl", "grpc_java_library")
+load("@build_stack_rules_proto//rules/java:proto_java_library.bzl", "proto_java_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "hello_service_proto",
+    srcs = ["hello_service.proto"],
+    strip_import_prefix = "/proto",  # needed for buf lint dir-package match
+    visibility = ["//visibility:public"],
+    deps = [
+        "//proto/hello/v1:hello_proto",
+        "@go_googleapis//google/api:annotations_proto",
+    ],
+)
+
+proto_compile(
+    name = "hello_service_java_compile",
+    outs = {
+        "@build_stack_rules_proto//plugin/builtin:java": "proto/hello/service/v1/hello_service.srcjar",
+        "@build_stack_rules_proto//plugin/grpc/grpc-java:protoc-gen-grpc-java": "proto/hello/service/v1/hello_service_grpc.srcjar",
+    },
+    outputs = [
+        "hello_service.srcjar",
+        "hello_service_grpc.srcjar",
+    ],
+    plugins = [
+        "@build_stack_rules_proto//plugin/builtin:java",
+        "@build_stack_rules_proto//plugin/grpc/grpc-java:protoc-gen-grpc-java",
+    ],
+    proto = "hello_service_proto",
+)
+
+proto_java_library(
+    name = "hello_service_java_library",
+    srcs = ["hello_service.srcjar"],
+    visibility = ["//visibility:public"],
+    exports = [
+        "//:google_api_java_library",
+        "//proto/hello/v1:hello_java_library",
+    ],
+    deps = [
+        "//:google_api_java_library",
+        "//proto/hello/v1:hello_java_library",
+    ],
+)
+
+grpc_java_library(
+    name = "hello_service_grpc_java_library",
+    srcs = ["hello_service_grpc.srcjar"],
+    visibility = ["//visibility:public"],
+    exports = [
+        ":hello_service_java_library",
+        "@maven//:io_grpc_grpc_stub",
+    ],
+    deps = [
+        ":hello_service_java_library",
+        "@maven//:com_google_guava_guava",
+        "@maven//:com_google_protobuf_protobuf_java",
+        "@maven//:io_grpc_grpc_api",
+        "@maven//:io_grpc_grpc_protobuf",
+        "@maven//:io_grpc_grpc_stub",
+        "@maven//:org_apache_tomcat_annotations_api",
+    ],
+)

@@ -1,0 +1,25 @@
+"Bazel dependencies"
+
+bazel_dep(
+    name = "rules_pkg",
+    version = "1.0.1",
+)
+bazel_dep(
+    name = "rules_java",
+    version = "7.6.5",
+)
+bazel_dep(
+    name = "aspect_bazel_lib",
+    version = "2.7.7",
+)
+
+PYTHON_VERSION = "3.12.3"
+
+bazel_dep(name = "rules_python", version = "0.32.2")
+
+# https://github.com/bazelbuild/rules_python/blob/main/examples/multi_python_versions/tests/BUILD.bazel
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    # We can specify the exact version.
+    python_version = PYTHON_VERSION,
+)

@@ -1,0 +1,24 @@
+load("@aspect_bazel_lib//lib:tar.bzl", "tar")
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@build_stack_rules_proto//rules:proto_compile.bzl", "proto_compile")
+load("@build_stack_rules_proto//rules/java:grpc_java_library.bzl", "grpc_java_library")
+load("@build_stack_rules_proto//rules/java:proto_java_library.bzl", "proto_java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "java-maven-lib",
+    srcs = glob(["*.java"]),
+    deps = [
+        "//proto/hello/service/v1:hello_service_grpc_java_library",
+        "@maven//:com_google_guava_guava",
+        "@maven//:com_linecorp_armeria_armeria",
+        "@maven//:com_linecorp_armeria_armeria_grpc",
+    ],
+)
+
+java_binary(
+    name = "java-maven",
+    main_class = "com.example.myproject.SimpleServer",
+    runtime_deps = [":java-maven-lib"],
+)

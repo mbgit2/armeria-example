@@ -1,0 +1,2 @@
+GET localhost:25000/v1/hello/mbgit
+Content-Type: application/json
